@@ -8,7 +8,7 @@ dependencyResolutionManagement {
 //    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
 }
 
-rootProject.name = "ise-lab-code-unification-and-resolution"
+rootProject.name = "ise-lab-inference"
 include("resolution")
 
 gradleEnterprise {
