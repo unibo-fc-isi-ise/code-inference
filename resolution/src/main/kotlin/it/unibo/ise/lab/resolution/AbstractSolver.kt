@@ -2,7 +2,6 @@ package it.unibo.ise.lab.resolution
 
 import it.unibo.tuprolog.core.*
 import it.unibo.tuprolog.theory.Theory
-import it.unibo.tuprolog.unify.Unificator.Companion.mguWith
 
 abstract class AbstractSolver(override val knowledgeBase: Theory) : Solver {
 
@@ -14,33 +13,36 @@ abstract class AbstractSolver(override val knowledgeBase: Theory) : Solver {
         yield(Solution.No(goals))
     }
 
-    private fun solve(query: Directive, goals: List<Term>, unifier: Substitution): Sequence<Solution> {
-//        println("$goals / $unifier")
+    protected fun solve(query: Directive, goals: List<Term>, unifier: Substitution): Sequence<Solution> {
+        println("$goals / $unifier")
         return if (unifier !is Substitution.Unifier || goals.isEmpty()) {
             emptySequence()
         } else {
             sequence {
-                when (val goal = goals.first().apply(unifier)) {
+                when (val currentGoal = goals.first().apply(unifier)) {
                     !is Struct -> {
-                        yield(Solution.Halt(query, "Invalid goal $goal"))
+                        yield(Solution.Halt(query, "Invalid goal $currentGoal"))
                     }
                     is Truth -> {
-                        if (goal.isTrue) {
+                        if (currentGoal.isTrue) {
                             yield(Solution.Yes(query, unifier))
                         }
                     }
                     else -> {
-                        for (rule in knowledgeBase[goal].map { it.freshCopy() }) {
-                            val substitution = unifier + (goal mguWith rule.head)
-                            yieldAll(
-                                solve(query, updateGoals(rule, goals), substitution)
-                            )
-                        }
+                        handleRules(
+                            query, goals.drop(1), unifier, currentGoal, knowledgeBase[currentGoal].map { it.freshCopy() }
+                        )
                     }
                 }
             }
         }
     }
 
-    protected abstract fun updateGoals(rule: Rule, goals: List<Term>): List<Term>
+    protected abstract suspend fun SequenceScope<Solution>.handleRules(
+        query: Directive,
+        remainingGoals: List<Term>,
+        unifier: Substitution,
+        currentGoal: Struct,
+        rules: Sequence<Rule>
+    )
 }

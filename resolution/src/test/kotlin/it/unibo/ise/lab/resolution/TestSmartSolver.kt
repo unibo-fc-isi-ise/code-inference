@@ -1,21 +1,24 @@
 package it.unibo.ise.lab.resolution
 
+import it.unibo.ise.lab.resolution.Theories.inverseMember
+import it.unibo.ise.lab.resolution.Theories.inverseNat
 import it.unibo.ise.lab.resolution.Theories.member
+import it.unibo.ise.lab.resolution.Theories.nat
 import it.unibo.tuprolog.core.Directive
 import it.unibo.tuprolog.core.Struct
 import it.unibo.tuprolog.core.parsing.parse
-import kotlin.test.Ignore
+import org.junit.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
-class TestDepthFirst {
+class TestSmartSolver {
 
     @Test
     fun testMemberX123() {
         val goal = Struct.parse("member(X, [1, 2, 3])")
         println("?:- $goal.")
-        val solver = DepthFirst(member)
+        val solver = SmartSolver(member)
         val solutions = solver.solve(goal).take(4).map{ println(it); it }.toList()
 
         assertEquals(4, solutions.size)
@@ -38,7 +41,7 @@ class TestDepthFirst {
     fun testInverseMemberX123() {
         val goal = Struct.parse("member(X, [1, 2, 3])")
         println("?:- $goal.")
-        val solver = DepthFirst(Theories.inverseMember)
+        val solver = SmartSolver(inverseMember)
         val solutions = solver.solve(goal).take(4).map{ println(it); it }.toList()
 
         assertEquals(4, solutions.size)
@@ -47,7 +50,7 @@ class TestDepthFirst {
             solutions[i].let {
                 assertIs<Solution.Yes>(it)
                 assertEquals(Directive.of(goal), it.query)
-                assertEquals(Struct.parse(":- member(${3 - i}, [1, 2, 3])"), it.solvedQuery)
+                assertEquals(Struct.parse(":- member(${i + 1}, [1, 2, 3])"), it.solvedQuery)
             }
         }
 
@@ -61,7 +64,7 @@ class TestDepthFirst {
     fun testMemberXY() {
         val goal = Struct.parse("member(X, Y)")
         println("?:- $goal.")
-        val solver = DepthFirst(member)
+        val solver = SmartSolver(member)
 
         solver.solve(goal).take(10).map{ println(it); it }.forEachIndexed{ i, solution ->
             assertIs<Solution.Yes>(solution)
@@ -70,11 +73,10 @@ class TestDepthFirst {
     }
 
     @Test
-    @Ignore
     fun testInverseMemberXY() {
         val goal = Struct.parse("member(X, Y)")
         println("?:- $goal.")
-        val solver = DepthFirst(Theories.inverseMember)
+        val solver = SmartSolver(inverseMember)
 
         solver.solve(goal).take(10).map{ println(it); it }.forEachIndexed{ i, solution ->
             assertIs<Solution.Yes>(solution)
@@ -86,7 +88,7 @@ class TestDepthFirst {
     fun testNatX() {
         val goal = Struct.parse("nat(X)")
         println("?:- $goal.")
-        val solver = DepthFirst(Theories.nat)
+        val solver = SmartSolver(nat)
         val solutions = solver.solve(goal).take(4).map { println(it); it }
 
         peanoNumbers.map { Directive.of(Struct.of("nat", it)) }
@@ -99,11 +101,10 @@ class TestDepthFirst {
     }
 
     @Test
-    @Ignore
     fun testInverseNatX() {
         val goal = Struct.parse("nat(X)")
         println("?:- $goal.")
-        val solver = DepthFirst(Theories.inverseNat)
+        val solver = SmartSolver(inverseNat)
         val solutions = solver.solve(goal).take(4).map { println(it); it }
 
         peanoNumbers.map { Directive.of(Struct.of("nat", it)) }

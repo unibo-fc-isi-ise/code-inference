@@ -1,26 +1,21 @@
 package it.unibo.ise.lab.resolution
 
-import it.unibo.ise.lab.resolution.Theories.inverseMember
-import it.unibo.ise.lab.resolution.Theories.inverseNat
 import it.unibo.ise.lab.resolution.Theories.member
-import it.unibo.ise.lab.resolution.Theories.nat
 import it.unibo.tuprolog.core.Directive
 import it.unibo.tuprolog.core.Struct
 import it.unibo.tuprolog.core.parsing.parse
-import it.unibo.tuprolog.theory.Theory
-import it.unibo.tuprolog.theory.parsing.parse
-import org.junit.Ignore
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
-class TestBreadthFirst {
+class TestDepthFirstSolver {
 
     @Test
     fun testMemberX123() {
         val goal = Struct.parse("member(X, [1, 2, 3])")
         println("?:- $goal.")
-        val solver = BreadthFirst(member)
+        val solver = DepthFirstSolver(member)
         val solutions = solver.solve(goal).take(4).map{ println(it); it }.toList()
 
         assertEquals(4, solutions.size)
@@ -43,7 +38,7 @@ class TestBreadthFirst {
     fun testInverseMemberX123() {
         val goal = Struct.parse("member(X, [1, 2, 3])")
         println("?:- $goal.")
-        val solver = BreadthFirst(inverseMember)
+        val solver = DepthFirstSolver(Theories.inverseMember)
         val solutions = solver.solve(goal).take(4).map{ println(it); it }.toList()
 
         assertEquals(4, solutions.size)
@@ -66,7 +61,7 @@ class TestBreadthFirst {
     fun testMemberXY() {
         val goal = Struct.parse("member(X, Y)")
         println("?:- $goal.")
-        val solver = BreadthFirst(member)
+        val solver = DepthFirstSolver(member)
 
         solver.solve(goal).take(10).map{ println(it); it }.forEachIndexed{ i, solution ->
             assertIs<Solution.Yes>(solution)
@@ -79,7 +74,7 @@ class TestBreadthFirst {
     fun testInverseMemberXY() {
         val goal = Struct.parse("member(X, Y)")
         println("?:- $goal.")
-        val solver = BreadthFirst(inverseMember)
+        val solver = DepthFirstSolver(Theories.inverseMember)
 
         solver.solve(goal).take(10).map{ println(it); it }.forEachIndexed{ i, solution ->
             assertIs<Solution.Yes>(solution)
@@ -91,7 +86,7 @@ class TestBreadthFirst {
     fun testNatX() {
         val goal = Struct.parse("nat(X)")
         println("?:- $goal.")
-        val solver = BreadthFirst(nat)
+        val solver = DepthFirstSolver(Theories.nat)
         val solutions = solver.solve(goal).take(4).map { println(it); it }
 
         peanoNumbers.map { Directive.of(Struct.of("nat", it)) }
@@ -104,11 +99,11 @@ class TestBreadthFirst {
     }
 
     @Test
-//    @Ignore
+    @Ignore
     fun testInverseNatX() {
         val goal = Struct.parse("nat(X)")
         println("?:- $goal.")
-        val solver = BreadthFirst(inverseNat)
+        val solver = DepthFirstSolver(Theories.inverseNat)
         val solutions = solver.solve(goal).take(4).map { println(it); it }
 
         peanoNumbers.map { Directive.of(Struct.of("nat", it)) }
