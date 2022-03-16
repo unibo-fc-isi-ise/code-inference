@@ -124,6 +124,7 @@ class UnificationWithDefaultUnificator {
         val pattern1 = Cons.of(X, Y)
         val pattern2 = List.of(X, Y, Z)
         val pattern3 = List.of(X, Y, Z, W)
+        val pattern4 = List.from(X, Y, Z, last=W)
 
         assertEquals(
             Substitution.of(X to giovanni, Y to List.of(ciatto, age)),
@@ -136,8 +137,13 @@ class UnificationWithDefaultUnificator {
         )
 
         assertEquals(
-            Substitution.of(X to giovanni, Y to ciatto, Z to age, W to EmptyList.instance),
+            Substitution.failed(),
             list mguWith pattern3
+        )
+
+        assertEquals(
+            Substitution.of(X to giovanni, Y to ciatto, Z to age, W to EmptyList.instance),
+            list mguWith pattern4
         )
     }
 }
