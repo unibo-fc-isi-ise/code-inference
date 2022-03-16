@@ -10,6 +10,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "ise-lab-inference"
 include("substitutions")
+include("unification")
 include("resolution")
 
 gradleEnterprise {
