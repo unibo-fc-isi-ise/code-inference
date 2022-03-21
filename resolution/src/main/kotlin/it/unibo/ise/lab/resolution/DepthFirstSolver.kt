@@ -10,9 +10,9 @@ class DepthFirstSolver(knowledgeBase: Theory) : AbstractSolver(knowledgeBase) {
         remainingGoals: List<Term>,
         unifier: Substitution,
         currentGoal: Struct,
-        rules: Sequence<Rule>
+        matchingRules: Sequence<Rule>
     ) {
-        for (rule in rules) {
+        for (rule in matchingRules) {
             val substitution = unifier + (currentGoal mguWith rule.head)
             yieldAll(solve(query, rule.bodyItems.toList() + remainingGoals, substitution))
         }

@@ -8,7 +8,7 @@ dependencyResolutionManagement {
 //    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
 }
 
-rootProject.name = "ise-lab-inference"
+rootProject.name = "ise-lab-code-inference"
 include("substitutions")
 include("unification")
 include("theories")

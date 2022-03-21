@@ -10,9 +10,9 @@ class SmartSolver(knowledgeBase: Theory) : AbstractSolver(knowledgeBase) {
         remainingGoals: List<Term>,
         unifier: Substitution,
         currentGoal: Struct,
-        rules: Sequence<Rule>
+        matchingRules: Sequence<Rule>
     ) {
-        val sortedRules = rules.sortedWith(nonRecursiveFirst).toList()
+        val sortedRules = matchingRules.sortedWith(nonRecursiveFirst).toList()
         for (rule in sortedRules) {
             val substitution = unifier + (currentGoal mguWith rule.head)
             yieldAll(solve(query, rule.bodyItems.toList() + remainingGoals, substitution))
