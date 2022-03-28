@@ -12,10 +12,12 @@ class SmartSolver(knowledgeBase: Theory) : AbstractSolver(knowledgeBase) {
         currentGoal: Struct,
         matchingRules: Sequence<Rule>
     ) {
-        val sortedRules = matchingRules.sortedWith(nonRecursiveFirst)
-        handleRulesInARow(query, remainingGoals, unifier, currentGoal, sortedRules)
+        TODO("order the matching rules accordingly, then call handleRulesInARow")
     }
 
+    /**
+     * A method checking whether a [Rule] is recursive or not (in the sense that it calls itself in its own body)
+     */
     private fun isRecursive(rule: Rule): Boolean = when {
         rule.bodyItems.any { it is Struct &&  it.indicator == rule.head.indicator } -> true
         else -> false

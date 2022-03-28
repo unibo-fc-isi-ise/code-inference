@@ -45,17 +45,17 @@ abstract class AbstractSolver(knowledgeBase: Theory) : Solver {
             sequence {
                 when (val currentGoal = remainingGoals.first().apply(unifier)) {
                     !is Struct -> {
-                        yield(Solution.Halt(query, "Invalid goal $currentGoal"))
+                        TODO("handle this case")
                     }
                     is Truth -> {
                         if (currentGoal.isTrue) {
-                            yieldAll(solve(query, remainingGoals.drop(1), unifier))
+                            TODO("handle this case")
                         } else {
-                            yield(Solution.No(query))
+                            TODO("handle this case")
                         }
                     }
                     else -> {
-                        val matchingRules = knowledgeBase[currentGoal].map { it.freshCopy() }
+                        val matchingRules: Sequence<Rule> = TODO("retrieve all rules matching the current goal")
                         handleRules(query, remainingGoals.drop(1), unifier, currentGoal, matchingRules)
                     }
                 }
@@ -66,13 +66,13 @@ abstract class AbstractSolver(knowledgeBase: Theory) : Solver {
     /**
      * Handles the many [matchingRules] for the [currentGoal], as well as the many [remainingGoals], necessary to prove [query]
      */
-    protected abstract suspend fun SequenceScope<Solution>.handleRules(
+    protected open suspend fun SequenceScope<Solution>.handleRules(
         query: Directive,
         remainingGoals: List<Term>,
         unifier: Substitution.Unifier,
         currentGoal: Struct,
         matchingRules: Sequence<Rule>
-    )
+    ) = handleRulesInARow(query, remainingGoals, unifier, currentGoal, matchingRules)
 
     protected suspend fun SequenceScope<Solution>.handleRulesInARow(
         query: Directive,
@@ -82,8 +82,8 @@ abstract class AbstractSolver(knowledgeBase: Theory) : Solver {
         rules: Sequence<Rule>
     ) {
         for (rule in rules) {
-            val substitution = unifier + (currentGoal mguWith rule.head)
-            yieldAll(solve(query, rule.bodyItems.toList() + remainingGoals, substitution))
+            val substitution = TODO("create a substitution to continue resolution accordingly")
+            yieldAll(solve(query, TODO("add subgoals accordingly"), substitution))
         }
     }
 }
