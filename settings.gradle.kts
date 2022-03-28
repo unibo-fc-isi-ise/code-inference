@@ -13,6 +13,7 @@ include("substitutions")
 include("unification")
 include("theories")
 include("resolution")
+include("side-effects")
 
 gradleEnterprise {
     buildScan {

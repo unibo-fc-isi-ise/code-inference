@@ -8,15 +8,12 @@ class SmartSolver(knowledgeBase: Theory) : AbstractSolver(knowledgeBase) {
     override suspend fun SequenceScope<Solution>.handleRules(
         query: Directive,
         remainingGoals: List<Term>,
-        unifier: Substitution,
+        unifier: Substitution.Unifier,
         currentGoal: Struct,
         matchingRules: Sequence<Rule>
     ) {
-        val sortedRules = matchingRules.sortedWith(nonRecursiveFirst).toList()
-        for (rule in sortedRules) {
-            val substitution = unifier + (currentGoal mguWith rule.head)
-            yieldAll(solve(query, rule.bodyItems.toList() + remainingGoals, substitution))
-        }
+        val sortedRules = matchingRules.sortedWith(nonRecursiveFirst)
+        handleRulesInARow(query, remainingGoals, unifier, currentGoal, sortedRules)
     }
 
     private fun isRecursive(rule: Rule): Boolean = when {

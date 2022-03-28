@@ -4,17 +4,12 @@ import it.unibo.tuprolog.core.*
 import it.unibo.tuprolog.theory.Theory
 import it.unibo.tuprolog.unify.Unificator.Companion.mguWith
 
-class DepthFirstSolver(knowledgeBase: Theory) : AbstractSolver(knowledgeBase) {
+open class DepthFirstSolver(knowledgeBase: Theory) : AbstractSolver(knowledgeBase) {
     override suspend fun SequenceScope<Solution>.handleRules(
         query: Directive,
         remainingGoals: List<Term>,
-        unifier: Substitution,
+        unifier: Substitution.Unifier,
         currentGoal: Struct,
         matchingRules: Sequence<Rule>
-    ) {
-        for (rule in matchingRules) {
-            val substitution = unifier + (currentGoal mguWith rule.head)
-            yieldAll(solve(query, rule.bodyItems.toList() + remainingGoals, substitution))
-        }
-    }
+    ) = handleRulesInARow(query, remainingGoals, unifier, currentGoal, matchingRules)
 }

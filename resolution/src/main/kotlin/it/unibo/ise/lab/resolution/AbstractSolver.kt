@@ -2,33 +2,45 @@ package it.unibo.ise.lab.resolution
 
 import it.unibo.tuprolog.core.*
 import it.unibo.tuprolog.theory.Theory
+import it.unibo.tuprolog.unify.Unificator.Companion.mguWith
 
-abstract class AbstractSolver(override val knowledgeBase: Theory) : Solver {
+abstract class AbstractSolver(knowledgeBase: Theory) : Solver {
+
+    override var knowledgeBase: Theory = knowledgeBase
+        protected set
 
     override fun solve(goals: Directive): Sequence<Solution> {
+        // delegate the construction of a lazy stream of solutions to the method below
         val streamOfSolutions = solve(goals, goals.bodyItems.toList(), Substitution.empty())
+        //  while lazily iterating of the stream of solutions...
         return sequence {
             for (solution in streamOfSolutions) {
+                // ... ignore all intermediate negative solutions
+                if (solution is Solution.No) continue
+                // ... yield positive or exceptional solutions
                 yield(solution)
-                // computes no more solutions after an error has occurred
+                // ... ignore all solutions coming after some exception solution
                 if (solution is Solution.Halt) return@sequence
             }
-            // add one final negative solution to signal that no more solutions are available
+            // ... add one final negative solution to signal that no more solutions are available
+            // (unless some exceptional solution has occurred before)
             yield(Solution.No(goals))
         }
     }
 
     /**
      * Handles the intermediate resolution step.
-     * Lazily computes non-negative [Solution]s for the [remainingGoals], provided that
+     * Lazily computes [Solution]s for the [remainingGoals], provided that
      * - the solver is currently handling a [query] provided by the user
      * - some goals have already been proved, hence constructing the partial resolving [unifier]
      * - some other goals are yet to be proved, namely [remainingGoals]
      */
     protected fun solve(query: Directive, remainingGoals: List<Term>, unifier: Substitution): Sequence<Solution> {
         println("$remainingGoals / $unifier")
-        return if (unifier !is Substitution.Unifier || remainingGoals.isEmpty()) {
-            emptySequence()
+        return if (unifier !is Substitution.Unifier) {
+            sequenceOf(Solution.No(query))
+        } else if (remainingGoals.isEmpty()) {
+            sequenceOf(Solution.Yes(query, unifier))
         } else {
             sequence {
                 when (val currentGoal = remainingGoals.first().apply(unifier)) {
@@ -37,7 +49,9 @@ abstract class AbstractSolver(override val knowledgeBase: Theory) : Solver {
                     }
                     is Truth -> {
                         if (currentGoal.isTrue) {
-                            yield(Solution.Yes(query, unifier))
+                            yieldAll(solve(query, remainingGoals.drop(1), unifier))
+                        } else {
+                            yield(Solution.No(query))
                         }
                     }
                     else -> {
@@ -55,8 +69,21 @@ abstract class AbstractSolver(override val knowledgeBase: Theory) : Solver {
     protected abstract suspend fun SequenceScope<Solution>.handleRules(
         query: Directive,
         remainingGoals: List<Term>,
-        unifier: Substitution,
+        unifier: Substitution.Unifier,
         currentGoal: Struct,
         matchingRules: Sequence<Rule>
     )
+
+    protected suspend fun SequenceScope<Solution>.handleRulesInARow(
+        query: Directive,
+        remainingGoals: List<Term>,
+        unifier: Substitution.Unifier,
+        currentGoal: Struct,
+        rules: Sequence<Rule>
+    ) {
+        for (rule in rules) {
+            val substitution = unifier + (currentGoal mguWith rule.head)
+            yieldAll(solve(query, rule.bodyItems.toList() + remainingGoals, substitution))
+        }
+    }
 }
