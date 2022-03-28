@@ -16,9 +16,14 @@
    - 101 for terms/clauses unification in 2P-Kt
 3. Exercise 5 in `./theories` theories
    - 101 for clauses retrieval from theories, via unification
-5. Exercise 6, 7 in `./resolution` is about resolution
+4. Exercise 6, 7 in `./resolution` is about resolution
     - exercise about how to perform resolution with a depth-first strategy
     - exercise about how to perform resolution with a (slightly) smarter strategy
+5. Exercises 8, 9, 10, 11 in `./side-effects` is about resolution with side effects
+   - exercise about how to support the assertion of clauses during resolution
+   - exercise about how to support the retraction of clauses during resolution
+   - exercise about how to support the negation (as failures) of goals in resolution
+   - exercise about how to support the evaluation of (arithmetic) expressions during resolution
 
 ### Workflow
 
