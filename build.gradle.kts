@@ -1,3 +1,5 @@
+import java.util.Locale
+
 plugins {
     alias(libs.plugins.kotlin.jvm)
 }
@@ -14,7 +16,7 @@ dependencies {
 }
 
 listOf("gui", "repl").forEach {
-    task<JavaExec>("runTuprolog${it.toUpperCase()}") {
+    task<JavaExec>("runTuprolog${it.uppercase(Locale.getDefault())}") {
         group = "tuprolog"
         mainClass.set("it.unibo.tuprolog.ui.$it.Main")
         sourceSets.main { classpath = runtimeClasspath }

@@ -8,7 +8,7 @@ import org.junit.Test
 import kotlin.test.assertEquals
 
 class RetrievingClausesFromTheories {
-    private val clauses = ClausesParser.withDefaultOperators.parseClauses("""
+    private val clauses = ClausesParser.withDefaultOperators().parseClauses("""
         member(_, []).
         member(H, [H | _]).
         member(X, [_ | T]) :- member(X, T).
