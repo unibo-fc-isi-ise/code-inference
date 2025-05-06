@@ -1,5 +1,5 @@
 plugins {
-    id("com.gradle.enterprise") version "3.19.2"
+    id("com.gradle.develocity") version "3.19.2"
 }
 
 dependencyResolutionManagement {
@@ -13,10 +13,15 @@ include("theories")
 include("resolution")
 include("side-effects")
 
-gradleEnterprise {
+develocity {
     buildScan {
-        termsOfServiceUrl = "https://gradle.com/terms-of-service"
-        termsOfServiceAgree = "yes"
-        publishOnFailure()
+        termsOfUseUrl = "https://gradle.com/terms-of-service"
+        termsOfUseAgree = "yes"
+        uploadInBackground = !System.getenv("CI").toBoolean()
+        publishing {
+            onlyIf {
+                it.buildResult.failures.isNotEmpty()
+            }
+        }
     }
 }
